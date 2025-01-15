@@ -1,83 +1,10 @@
-const { Client, GatewayIntentBits, REST, Routes } = require("discord.js");
-const fs = require("fs");
-const { token, clientId, guildId } = require("./config.json");
-
-// Load dynamic options for /command3
-let dynamicOptions = [];
-const optionsFile = "./options.json";
-
-if (fs.existsSync(optionsFile)) {
-	dynamicOptions = JSON.parse(fs.readFileSync(optionsFile, "utf8"));
-}
-
-const client = new Client({
-	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
-});
-
-// Define commands
-const commands = [
-	{
-		name: "command2",
-		description: "Get a static list of options",
-	},
-	{
-		name: "command3",
-		description:
-			"Select from admin-defined options or set options (admins only)",
-		options: [
-			{
-				name: "set",
-				type: 1, // SUB_COMMAND
-				description: "Set options (Admins only)",
-				options: [
-					{
-						name: "options",
-						type: 3, // STRING type
-						description: "Comma-separated options to set",
-						required: true,
-					},
-				],
-			},
-			{
-				name: "select",
-				type: 1, // SUB_COMMAND
-				description: "Choose an option",
-			},
-		],
-	},
-	{
-		name: "create-ticket",
-		description: "Create a new support ticket",
-	},
-	{
-		name: "close-ticket",
-		description: "Close the current support ticket",
-	},
-];
-
-(async () => {
-	const rest = new REST({ version: "10" }).setToken(token);
-	try {
-		console.log("Registering slash commands...");
-		await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-			body: commands,
-		});
-		console.log("Slash commands registered.");
-	} catch (error) {
-		console.error("Error registering commands:", error);
-	}
-})();
-
-client.on("ready", () => {
-	console.log(`Bot logged in as ${client.user.tag}`);
-});
-
 client.on("interactionCreate", async (interaction) => {
 	if (!interaction.isCommand()) return;
 
 	const { commandName, options, member } = interaction;
 
 	if (commandName === "command2") {
+		// Your existing logic for /command2
 		const staticOptions = [
 			{
 				label: "Option A",
@@ -96,7 +23,6 @@ client.on("interactionCreate", async (interaction) => {
 			},
 		];
 
-		// Respond with a dropdown menu
 		await interaction.reply({
 			content: "Please select an option:",
 			components: [
@@ -117,16 +43,18 @@ client.on("interactionCreate", async (interaction) => {
 	}
 
 	if (commandName === "command3") {
+		// Ensure that only admins can use /command3
+		if (!member.permissions.has("Administrator")) {
+			return interaction.reply({
+				content: "You do not have permission to use this command.",
+				ephemeral: true,
+			});
+		}
+
 		const subCommand = options.getSubcommand();
 
 		if (subCommand === "set") {
-			if (!member.permissions.has("Administrator")) {
-				return interaction.reply({
-					content: "You do not have permission to set options.",
-					ephemeral: true,
-				});
-			}
-
+			// Existing logic for setting options
 			const newOptions = options
 				.getString("options")
 				.split(",")
@@ -145,6 +73,7 @@ client.on("interactionCreate", async (interaction) => {
 		}
 
 		if (subCommand === "select") {
+			// Existing logic for selecting options
 			if (dynamicOptions.length === 0) {
 				return interaction.reply({
 					content: "No options have been set by the admin.",
@@ -178,6 +107,7 @@ client.on("interactionCreate", async (interaction) => {
 	}
 
 	if (commandName === "create-ticket") {
+		// Your existing logic for creating a ticket
 		const ticketChannel = await interaction.guild.channels.create({
 			name: `ticket-${interaction.user.username}`,
 			type: 0, // GUILD_TEXT
@@ -200,6 +130,7 @@ client.on("interactionCreate", async (interaction) => {
 	}
 
 	if (commandName === "close-ticket") {
+		// Your existing logic for closing a ticket
 		const channel = interaction.channel;
 		if (!channel.name.startsWith("ticket-")) {
 			return interaction.reply({
@@ -235,5 +166,3 @@ client.on("interactionCreate", async (interaction) => {
 		});
 	}
 });
-
-client.login(token);

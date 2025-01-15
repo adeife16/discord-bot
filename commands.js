@@ -1,30 +1,36 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { clientId, guildId, token } = require("./config.json"); // Ensure this file contains the correct values
+const { clientId, guildId, token } = require("./config.json");
 
 // Define your commands
 const commands = [
 	new SlashCommandBuilder()
-		.setName("command1")
-		.setDescription("Select an option")
-		.addStringOption((option) =>
-			option
-				.setName("option")
-				.setDescription("Choose an option")
-				.setRequired(true)
-				.addChoices(
-					{ name: "Option 1", value: "option1" },
-					{ name: "Option 2", value: "option2" },
-					{ name: "Option 3", value: "option3" }
-				)
-		),
-	new SlashCommandBuilder()
 		.setName("command2")
-		.setDescription("Create a support ticket"),
+		.setDescription("Get a static list of options"),
 	new SlashCommandBuilder()
 		.setName("command3")
-		.setDescription("Only Admins can set options for command1"),
+		.setDescription("Only Admins can set options for command2")
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName("set")
+				.setDescription("Set options (Admins only)")
+				.addStringOption((option) =>
+					option
+						.setName("options")
+						.setDescription("Comma-separated options to set")
+						.setRequired(true)
+				)
+		)
+		.addSubcommand((subcommand) =>
+			subcommand.setName("select").setDescription("Select an option")
+		),
+	new SlashCommandBuilder()
+		.setName("create-ticket")
+		.setDescription("Create a new support ticket"),
+	new SlashCommandBuilder()
+		.setName("close-ticket")
+		.setDescription("Close the current support ticket"),
 ].map((command) => command.toJSON());
 
 // Set up the REST client
