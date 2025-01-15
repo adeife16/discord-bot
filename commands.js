@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { clientId, guildId, token } = require("./config.json"); // Make sure this file contains the correct values
+const { clientId, guildId, token } = require("./config.json"); // Ensure this file contains the correct values
 
 // Define your commands
 const commands = [
@@ -13,9 +13,11 @@ const commands = [
 				.setName("option")
 				.setDescription("Choose an option")
 				.setRequired(true)
-				.addChoice("Option 1", "option1")
-				.addChoice("Option 2", "option2")
-				.addChoice("Option 3", "option3")
+				.addChoices(
+					{ name: "Option 1", value: "option1" },
+					{ name: "Option 2", value: "option2" },
+					{ name: "Option 3", value: "option3" }
+				)
 		),
 	new SlashCommandBuilder()
 		.setName("command2")
