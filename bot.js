@@ -1,3 +1,11 @@
+const { Client, GatewayIntentBits, REST, Routes } = require("discord.js");
+const fs = require("fs");
+const { token, clientId, guildId } = require("./config.json");
+
+const client = new Client({
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+});
+
 client.on("interactionCreate", async (interaction) => {
 	if (!interaction.isCommand()) return;
 
