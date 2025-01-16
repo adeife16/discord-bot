@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
-const TOKEN = "your-bot-token-here";
+const config = require("./config.json"); // Load the token and other config values from config.json
 
 const client = new Client({
 	intents: [
@@ -68,5 +68,5 @@ client.on("interactionCreate", async (interaction) => {
 	}
 });
 
-// Login to Discord
-client.login(TOKEN);
+// Login to Discord using the token from config.json
+client.login(config.token);
