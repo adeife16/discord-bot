@@ -1,3 +1,23 @@
+const { Client, Intents, Collection } = require("discord.js");
+const TOKEN = "your-bot-token-here";
+
+const client = new Client({
+	intents: [
+		Intents.FLAGS.GUILDS,
+		Intents.FLAGS.GUILD_MESSAGES,
+		Intents.FLAGS.GUILD_MEMBERS,
+	],
+});
+
+client.commands = new Collection();
+
+// Load commands dynamically (if needed)
+// Example: require('./commandsLoader')(client);
+
+client.once("ready", () => {
+	console.log(`Logged in as ${client.user.tag}!`);
+});
+
 client.on("interactionCreate", async (interaction) => {
 	if (interaction.isCommand()) {
 		const command = client.commands.get(interaction.commandName);
@@ -14,7 +34,6 @@ client.on("interactionCreate", async (interaction) => {
 		}
 	}
 
-	// Handle static options dropdown
 	if (
 		interaction.isStringSelectMenu() &&
 		interaction.customId === "static-options"
@@ -48,3 +67,6 @@ client.on("interactionCreate", async (interaction) => {
 		}
 	}
 });
+
+// Login to Discord
+client.login(TOKEN);
