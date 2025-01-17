@@ -1,5 +1,13 @@
-const { Client, GatewayIntentBits, Collection } = require("discord.js");
-const config = require("./config.json"); // Load the token and other config values from config.json
+const {
+	Client,
+	GatewayIntentBits,
+	Collection,
+	REST,
+	Routes,
+} = require("discord.js");
+const fs = require("fs");
+const path = require("path");
+const config = require("./config.json"); // Load the token, clientId, and guildId from config.json
 
 const client = new Client({
 	intents: [
@@ -11,11 +19,39 @@ const client = new Client({
 
 client.commands = new Collection();
 
-// Load commands dynamically (if needed)
-// Example: require('./commandsLoader')(client);
+// Load commands dynamically
+const commands = [];
+const commandsPath = path.join(__dirname, "commands");
+const commandFiles = fs
+	.readdirSync(commandsPath)
+	.filter((file) => file.endsWith(".js"));
+
+for (const file of commandFiles) {
+	const command = require(path.join(commandsPath, file));
+	client.commands.set(command.data.name, command);
+	commands.push(command.data.toJSON());
+}
+
+// Register slash commands
+const rest = new REST({ version: "10" }).setToken(config.token);
+
+(async () => {
+	try {
+		console.log("Registering slash commands...");
+		await rest.put(
+			Routes.applicationGuildCommands(config.clientId, config.guildId),
+			{
+				body: commands,
+			}
+		);
+		console.log("Slash commands registered.");
+	} catch (error) {
+		console.error("Error registering slash commands:", error);
+	}
+})();
 
 client.once("ready", () => {
-	console.log(`Logged in as ${client.user.tag}!`);
+	console.log(`Bot is online as ${client.user.tag}`);
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -25,16 +61,17 @@ client.on("interactionCreate", async (interaction) => {
 			try {
 				await command.execute(interaction);
 			} catch (error) {
-				console.error(error);
+				console.error(
+					`Error executing command ${interaction.commandName}:`,
+					error
+				);
 				await interaction.reply({
-					content: "There was an error executing the command.",
+					content: "There was an error executing this command.",
 					ephemeral: true,
 				});
 			}
 		}
-	}
-
-	if (
+	} else if (
 		interaction.isStringSelectMenu() &&
 		interaction.customId === "static-options"
 	) {
@@ -46,17 +83,13 @@ client.on("interactionCreate", async (interaction) => {
         **Total Members**: ${interaction.guild.memberCount}
       `;
 			await interaction.reply({ content: serverInfo, ephemeral: true });
-		}
-
-		if (option === "bot_info") {
+		} else if (option === "bot_info") {
 			const botInfo = `
         **Bot Name**: ${client.user.username}
         **Created On**: ${client.user.createdAt.toDateString()}
       `;
 			await interaction.reply({ content: botInfo, ephemeral: true });
-		}
-
-		if (option === "list_commands") {
+		} else if (option === "list_commands") {
 			const commandsList = `
         **Available Commands**:
         - \`/command2\`: Perform tasks via dropdown options.
