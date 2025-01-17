@@ -94,6 +94,7 @@ client.on("interactionCreate", async (interaction) => {
         **Available Commands**:
         - \`/command2\`: Perform tasks via dropdown options.
         - \`/open_ticket\`: Open a new support ticket.
+		- \`/close_ticket\`: Close a support ticket.
         - \`/command3\`: Send custom responses in ticket channels (Admins only).
       `;
 			await interaction.reply({ content: commandsList, ephemeral: true });
