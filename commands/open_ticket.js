@@ -23,7 +23,7 @@ module.exports = {
 		const ticketChannel = await guild.channels.create({
 			name: `ticket-${interaction.user.id}`,
 			type: 0, // Text channel
-			parent: "YOUR_TICKET_CATEGORY_ID", // Replace with your ticket category ID
+			parent: "1329553531694223411", // Replace with your ticket category ID
 			permissionOverwrites: [
 				{
 					id: guild.roles.everyone.id,
